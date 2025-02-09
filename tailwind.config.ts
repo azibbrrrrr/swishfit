@@ -9,6 +9,11 @@ export default {
   ],
   theme: {
   	extend: {
+		fontFamily: {
+			'changa': ['ChangaOne', 'sans-serif'],
+			'nhl': ['NHLEVan', 'serif'],
+			'myriad': ['MyriadPro', 'sans-serif'],
+		},
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',

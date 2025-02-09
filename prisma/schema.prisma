@@ -11,17 +11,25 @@ datasource db {
 }
 
 model Product {
-  id                     String                 @id @default(uuid())
+  id                     String          @id @default(uuid())
   name                   String
   priceInCents           Int
-  filePath               String
   imagePath              String
   description            String
-  isAvailableForPurchase Boolean                @default(true)
-  createdAt              DateTime               @default(now())
-  updatedAt              DateTime               @updatedAt
-  orders                 Order[]
-  downloadVerifications  DownloadVerification[]
+  isAvailableForPurchase Boolean         @default(true)
+  createdAt              DateTime        @default(now())
+  updatedAt              DateTime        @updatedAt
+  orders                 Order[] // Product can have many orders
+  options                ProductOption[]
+  optionType             String // Represents the type of option (e.g., 'Size', 'Color')
+}
+
+model ProductOption {
+  id        Int     @id @default(autoincrement())
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  value     String
+  stock     Int // Available stock for this option
 }
 
 model User {
@@ -29,7 +37,7 @@ model User {
   email     String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  orders    Order[]
+  orders    Order[] // User can have many orders
 }
 
 model Order {
@@ -39,14 +47,7 @@ model Order {
   updatedAt        DateTime @updatedAt
   userId           String
   productId        String
+  selectedSize     String // Added the selected size field
   user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   product          Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
-}
-
-model DownloadVerification {
-  id        String   @id @default(uuid())
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-  productId String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 }

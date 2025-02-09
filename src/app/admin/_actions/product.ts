@@ -12,101 +12,264 @@ const imageSchema = fileSchema.refine(
 )
 
 const addSchema = z.object({
-    name: z.string().min(1),
-    priceInCents: z.coerce.number().int().min(1),
-    description: z.string().min(1),
-    file: fileSchema.refine(file => file.size > 0, "Required"),
-    image: imageSchema.refine(file => file.size > 0, "Required"),
-})
+  name: z.string().min(1),
+  priceInCents: z.coerce.number().int().min(1),
+  description: z.string().min(1),
+  image: imageSchema.refine(file => file.size > 0, "Required"),
+  optionType: z.string().optional(),
+  sizes: z.array(z.object({
+    size: z.string().min(1),
+    stock: z.number().int().min(0)
+  })).optional(),
+  colors: z.array(z.object({
+    color: z.string().min(1),
+    stock: z.number().int().min(0)
+  })).optional(),
+});
 
 export async function addProduct(prevState: unknown, formData: FormData) {
-    const result = addSchema.safeParse(Object.fromEntries(formData.entries()))
-    if (result.success === false) {
-      return result.error.formErrors.fieldErrors
-    }
-  
-    const data = result.data
-  
-    await fs.mkdir("products", { recursive: true })
-    const filePath = `products/${crypto.randomUUID()}-${data.file.name}`
-    await fs.writeFile(filePath, Buffer.from(await data.file.arrayBuffer()))
-  
-    await fs.mkdir("public/products", { recursive: true })
-    const imagePath = `/products/${crypto.randomUUID()}-${data.image.name}`
-    await fs.writeFile(
-      `public${imagePath}`,
-      Buffer.from(await data.image.arrayBuffer())
-    )
-  
-    await db.product.create({
-      data: {
-        isAvailableForPurchase: false,
-        name: data.name,
-        description: data.description,
-        priceInCents: data.priceInCents,
-        filePath,
-        imagePath,
-      },
-    })
-    
-    revalidatePath("/")
-    revalidatePath("/products")
+  console.log("Form Data:", Object.fromEntries(formData.entries()));
 
-    redirect("/admin/products")
+  // Convert formData to an object and assert it as Record<string, any>
+  const formEntries = Object.fromEntries(formData.entries()) as Record<string, any>;
+
+  const data = formEntries;
+
+  // Parse sizes array from the form data
+  if (data['sizes[0][size]']) {
+    const sizes: { size: string, stock: number }[] = [];
+    let index = 0;
+    while (data[`sizes[${index}][size]`]) {
+      sizes.push({
+        size: data[`sizes[${index}][size]`],
+        stock: Number(data[`sizes[${index}][stock]`])
+      });
+      index++;
+    }
+    data.sizes = sizes; // Replace with structured sizes array
   }
+
+  if (data['colors[0][color]']) {
+    const colors: { color: string, stock: number }[] = [];
+    let index = 0;
+    while (data[`colors[${index}][color]`]) {
+      colors.push({
+        color: data[`colors[${index}][color]`],
+        stock: Number(data[`colors[${index}][stock]`])
+      });
+      index++;
+    }
+    data.colors = colors; // Replace with structured sizes array
+  }
+  
+  
+  // Validate the data using zod schema
+  const result = addSchema.safeParse(data);
+
+  if (result.success === false) {
+    return result.error.formErrors.fieldErrors;
+  }
+
+  const validatedData = result.data;
+
+  // Handle image file upload
+  await fs.mkdir("public/products", { recursive: true });
+  const imagePath = `/products/${crypto.randomUUID()}-${validatedData.image.name}`;
+  await fs.writeFile(
+    `public${imagePath}`,
+    Buffer.from(await validatedData.image.arrayBuffer())
+  );
+
+  // Prepare options based on optionType
+  const options: { value: string; stock: number }[] = [];
+
+  if (validatedData.optionType === 'size' && validatedData.sizes) {
+    validatedData.sizes.forEach((sizeObj) => {
+      options.push({
+        value: sizeObj.size,
+        stock: sizeObj.stock,
+      });
+    });
+  }
+
+  if (validatedData.optionType === 'color' && validatedData.colors) {
+    validatedData.colors.forEach((color1) => {
+      options.push({
+        value: color1.color,
+        stock: color1.stock,      
+      });
+    });
+  }
+
+  // Create the product with its options in the database
+  const product = await db.product.create({
+    data: {
+      isAvailableForPurchase: false,
+      name: validatedData.name,
+      description: validatedData.description,
+      priceInCents: validatedData.priceInCents,
+      imagePath,
+      optionType: validatedData.optionType || "", // Set to empty string if undefined
+      options: {
+        create: options, // Create associated ProductOption records
+      },
+    },
+  });
+
+  console.log("options:", options);
+
+  // Revalidate paths and redirect
+  revalidatePath("/");
+  revalidatePath("/products");
+  redirect("/admin/products");
+}
 
 const editSchema = addSchema.extend({
   file: fileSchema.optional(),
   image: imageSchema.optional(),
-})
+  sizes: z.array(z.object({
+    size: z.string().min(1),
+    stock: z.number().int().min(0),
+  })).optional(),
+  colors: z.array(z.object({
+    color: z.string().min(1),
+    stock: z.number().int().min(0)
+  })).optional(),
+});
 
-export async function updateProduct(id:string, prevState: unknown, formData: FormData) {
-  const result = editSchema.safeParse(Object.fromEntries(formData.entries()))
+export async function updateProduct(id: string, prevState: unknown, formData: FormData) {
+  console.log("Form Data:", Object.fromEntries(formData.entries()));
+
+  // Convert formData to an object and assert it as Record<string, any>
+  const formEntries = Object.fromEntries(formData.entries()) as Record<string, any>;
+
+  const data = formEntries; // Now data has type Record<string, any>
+
+  // Parse sizes array from the form data
+  if (data['sizes[0][size]']) {
+    const sizes: { size: string, stock: number }[] = [];
+    let index = 0;
+    while (data[`sizes[${index}][size]`]) {
+      sizes.push({
+        size: data[`sizes[${index}][size]`],
+        stock: Number(data[`sizes[${index}][stock]`])
+      });
+      index++;
+    }
+    data.sizes = sizes; // Replace with structured sizes array
+  }
+
+  // Parse colors array from the form data
+  if (data['colors[0][color]']) {
+    const colors: { color: string, stock: number }[] = [];
+    let index = 0;
+    while (data[`colors[${index}][color]`]) {
+      colors.push({
+        color: data[`colors[${index}][color]`],
+        stock: Number(data[`colors[${index}][stock]`])
+      });
+      index++;
+    }
+    data.colors = colors; // Replace with structured colors array
+  }
+
+  // Validate the data with the schema
+  const result = editSchema.safeParse(data);
   if (result.success === false) {
-    return result.error.formErrors.fieldErrors
+    return result.error.formErrors.fieldErrors;
   }
 
-  const data = result.data
-  const product = await db.product.findUnique({ where: { id } })
+  const validatedData = result.data;
+  const product = await db.product.findUnique({ where: { id } });
 
-  if (product == null) return notFound()
+  if (product == null) return notFound();
 
-  //if new file provided, delete old file and save new file
-  let filePath = product.filePath
-  if (data.file != null && data.file.size > 0) {
-    await fs.unlink(product.filePath)
-    const filePath = `products/${crypto.randomUUID()}-${data.file.name}`
-    await fs.writeFile(filePath, Buffer.from(await data.file.arrayBuffer()))
-  }
-
-  //if new image provided, delete old image and save new image
-  let imagePath = product.imagePath
-  if (data.image != null && data.image.size > 0) {
-    await fs.unlink(`public${product.imagePath}`)
-    imagePath = `/products/${crypto.randomUUID()}-${data.image.name}`
+  // Handle image update: If new image provided, delete old image and save new image
+  let imagePath = product.imagePath;
+  if (validatedData.image != null && validatedData.image.size > 0) {
+    await fs.unlink(`public${product.imagePath}`);
+    imagePath = `/products/${crypto.randomUUID()}-${validatedData.image.name}`;
     await fs.writeFile(
       `public${imagePath}`,
-      Buffer.from(await data.image.arrayBuffer())
-    )
+      Buffer.from(await validatedData.image.arrayBuffer())
+    );
   }
 
+  // Fetch current options for comparison
+  const existingOptions = await db.productOption.findMany({
+    where: { productId: product.id },
+  });
+
+  // Prepare options based on optionType
+  const options: { value: string; stock: number }[] = [];
+
+  if (validatedData.optionType === 'size' && validatedData.sizes) {
+    validatedData.sizes.forEach((sizeObj) => {
+      const existingSize = existingOptions.find((option) => option.value === sizeObj.size);
+      if (existingSize) {
+        // If size exists, check if the stock is different, then update
+        if (existingSize.stock !== sizeObj.stock) {
+          options.push({
+            value: sizeObj.size,
+            stock: sizeObj.stock, // Update the stock
+          });
+        }
+      } else {
+        // If size doesn't exist, add it to the options list
+        options.push({
+          value: sizeObj.size,
+          stock: sizeObj.stock,
+        });
+      }
+    });
+  }
+
+  if (validatedData.optionType === 'color' && validatedData.colors) {
+    validatedData.colors.forEach((colorObj) => {
+      const existingColor = existingOptions.find((option) => option.value === colorObj.color);
+      if (existingColor) {
+        // If color exists, check if the stock is different, then update
+        if (existingColor.stock !== colorObj.stock) {
+          options.push({
+            value: colorObj.color,
+            stock: colorObj.stock, // Update the stock
+          });
+        }
+      } else {
+        // If color doesn't exist, add it to the options list
+        options.push({
+          value: colorObj.color,
+          stock: colorObj.stock,
+        });
+      }
+    });
+  }
+
+  // Update the product with the new data
   await db.product.update({
     where: { id },
     data: {
       isAvailableForPurchase: false,
-      name: data.name,
-      description: data.description,
-      priceInCents: data.priceInCents,
-      filePath,
+      name: validatedData.name,
+      description: validatedData.description,
+      priceInCents: validatedData.priceInCents,
       imagePath,
+      optionType: validatedData.optionType || "", // Set to empty string if undefined
+      options: {
+        create: options, // Create associated ProductOption records
+      },
     },
-  })
+  });
 
-  revalidatePath("/")
-  revalidatePath("/products")
+  console.log("Options:", options);
 
-  redirect("/admin/products")
+  // Revalidate paths and redirect
+  revalidatePath("/");
+  revalidatePath("/products");
+  redirect("/admin/products");
 }
+
+
 
 export async function toggleProductAvailability(id: string, isAvailableForPurchase: boolean) {
     await db.product.update({
@@ -121,7 +284,6 @@ export async function toggleProductAvailability(id: string, isAvailableForPurcha
 export async function deleteProduct(id: string) {
     const product = await db.product.delete({ where: { id } })
     if (product == null) return notFound()
-    await fs.unlink(product.filePath)
     await fs.unlink(`public${product.imagePath}`);
 
     revalidatePath("/")

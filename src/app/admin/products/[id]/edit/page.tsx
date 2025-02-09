@@ -7,7 +7,12 @@ export default async function EditProductPage({
 }: {
   params: { id: string };
 }) {
-  const product = await db.product.findUnique({ where: { id } });
+  const product = await db.product.findUnique({
+    where: { id },
+    include: {
+      options: true, // This will fetch the related options
+    },
+  });
 
   return (
     <>

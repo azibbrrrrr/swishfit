@@ -23,50 +23,38 @@ export function ProductCard({
   id,
   name,
   priceInCents,
-  description,
   imagePath,
 }: ProductCardProps) {
   return (
-    <Card className="flex overflow-hidden flex-col">
-      <div className="relative w-full h-auto aspect-video">
-        <Image src={imagePath} fill alt={name} />
+    <Link href={`/products/${id}`}>
+      <div className="flex flex-col items-start w-full cursor-pointer">
+        <Image
+          src={imagePath}
+          alt={name}
+          width={300}
+          height={200}
+          className="w-full max-w-[1000px]"
+        />
+        <p className="font-myriad text-lg mt-2">{name}</p>
+        <p className="font-myriad text-lg font-bold">
+          {formatCurrency(priceInCents / 100)}
+        </p>
       </div>
-      <CardHeader>
-        <CardTitle>{name}</CardTitle>
-        <CardDescription>{formatCurrency(priceInCents / 100)}</CardDescription>
-      </CardHeader>
-      <CardContent className="flex-grow">
-        <p className="line-clamp-4">{description}</p>
-      </CardContent>
-      <CardFooter>
-        <Button asChild size="lg" className="w-full">
-          <Link href={`/products/${id}/purchase`}>Purchase</Link>
-        </Button>
-      </CardFooter>
-    </Card>
+    </Link>
   );
 }
 
 export function ProductCardSkeleton() {
   return (
-    <Card className="overflow-hidden flex flex-col animate-pulse">
-      <div className="w-full aspect-video bg-gray-300" />
-      <CardHeader>
-        <CardTitle>
-          <div className="w-3/4 h-6 rounded-full bg-gray-300" />
-        </CardTitle>
-        <CardDescription>
-          <div className="w-1/2 h-4 rounded-full bg-gray-300" />
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        <div className="w-full h-4 rounded-full bg-gray-300" />
-        <div className="w-full h-4 rounded-full bg-gray-300" />
-        <div className="w-3/4 h-4 rounded-full bg-gray-300" />
-      </CardContent>
-      <CardFooter>
-        <Button className="w-full" disabled size="lg"></Button>
-      </CardFooter>
-    </Card>
+    <div className="flex flex-col items-start w-full animate-pulse">
+      {/* Image Skeleton */}
+      <div className="w-full max-w-[1000px] h-[200px] bg-gray-300 rounded-md" />
+
+      {/* Name Skeleton */}
+      <div className="w-3/4 h-4 bg-gray-300 rounded-md mt-3"></div>
+
+      {/* Price Skeleton */}
+      <div className="w-1/2 h-4 bg-gray-300 rounded-md mt-2"></div>
+    </div>
   );
 }

@@ -1,4 +1,5 @@
 import { Nav, NavLink } from '@/components/Nav';
+import Image from 'next/image';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,7 +14,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </Nav>
 
       {/* Main Content */}
-      <main className="container mx-auto p-6">{children}</main>
+      <main className="bg-white min-h-screen">{children}</main>
     </div>
   );
 }
