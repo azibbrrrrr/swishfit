@@ -21,7 +21,6 @@ import {
 import { loadStripe } from '@stripe/stripe-js';
 import Image from 'next/image';
 import { FormEvent, useState } from 'react';
-import { set } from 'zod';
 
 type CheckoutFormProps = {
   product: {

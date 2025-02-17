@@ -10,6 +10,7 @@ export default {
   theme: {
   	extend: {
 		fontFamily: {
+			'sans': ['MyriadPro', 'sans-serif'],
 			'changa': ['ChangaOne', 'sans-serif'],
 			'nhl': ['NHLEVan', 'serif'],
 			'myriad': ['MyriadPro', 'sans-serif'],

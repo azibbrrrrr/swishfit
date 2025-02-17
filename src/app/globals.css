@@ -84,6 +84,10 @@ body {
   font-weight: 700; /* Bold weight */
 }
 
+body {
+  font-family: 'MyriadPro', sans-serif;
+}
+
 @layer base {
   * {
     @apply border-border;

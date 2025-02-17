@@ -13,7 +13,14 @@ export function Nav({ children }: { children: ReactNode }) {
       <div className="max-w-screen-xl mx-auto w-full flex justify-between items-center">
         {/* Left side: Logo */}
         <div className="flex items-center space-x-8">
-          <Image src="/logo.svg" alt="Rendunks Logo" width={150} height={30} />
+          <Link href="/">
+            <Image
+              src="/logo.svg"
+              alt="Rendunks Logo"
+              width={150}
+              height={30}
+            />
+          </Link>
           {/* Center: Navigation Items */}
           <div className="flex space-x-2">{children}</div>
         </div>

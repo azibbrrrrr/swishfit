@@ -1,13 +1,6 @@
+'use client'; // This marks the component as a Client Component
+
 import { formatCurrency } from '@/lib/formatters';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from './ui/card';
-import { Button } from './ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -25,9 +18,17 @@ export function ProductCard({
   priceInCents,
   imagePath,
 }: ProductCardProps) {
+  const handleScrollToTop = () => {
+    // Scroll to the top of the page when the link is clicked
+    window.scrollTo(0, 0);
+  };
+
   return (
-    <Link href={`/products/${id}`}>
-      <div className="flex flex-col items-start w-full cursor-pointer">
+    <Link href={`/products/${id}`} scroll={false}>
+      <div
+        className="flex flex-col items-start w-full cursor-pointer"
+        onClick={handleScrollToTop} // Add this to trigger scrolling to top on link click
+      >
         <Image
           src={imagePath}
           alt={name}

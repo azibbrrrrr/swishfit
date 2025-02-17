@@ -30,6 +30,8 @@ model ProductOption {
   product   Product @relation(fields: [productId], references: [id])
   value     String
   stock     Int // Available stock for this option
+
+  @@unique([productId, value])
 }
 
 model User {
