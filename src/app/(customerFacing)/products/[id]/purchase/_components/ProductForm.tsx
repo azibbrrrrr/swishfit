@@ -5,12 +5,15 @@ import Image from 'next/image';
 import { formatCurrency } from '@/lib/formatters';
 import { MinusCircle, PlusCircle } from 'lucide-react';
 import { Product } from '@prisma/client';
+import useCart from '@/lib/hooks/useCart';
 
 const ProductDetails = ({ product }: { product: Product }) => {
   const [sizes, setSizes] = useState<{ size: string; stock: number }[]>([]);
   const [colors, setColors] = useState<{ color: string; stock: number }[]>([]);
-  const [selectedOption, setSelectedOption] = useState<string>(''); // Initially no option selected
+  const [selectedSize, setSelectedSize] = useState<string>(''); // Initially no option selected
+  const [selectedColor, setSelectedColor] = useState<string>(''); // Initially no option selected
   const [quantity, setQuantity] = useState<number>(1);
+  const cart = useCart();
 
   useEffect(() => {
     // Pre-fill the option types based on the product options
@@ -79,16 +82,16 @@ const ProductDetails = ({ product }: { product: Product }) => {
                       type="radio"
                       name="size"
                       value={option.size}
-                      checked={selectedOption === option.size}
+                      checked={selectedSize === option.size}
                       onChange={() =>
-                        option.stock > 0 && setSelectedOption(option.size)
+                        option.stock > 0 && setSelectedSize(option.size)
                       }
                       className="hidden"
                       disabled={option.stock === 0}
                     />
                     <span
                       className={`px-6 py-2 rounded-none font-myriad cursor-pointer ${
-                        selectedOption === option.size
+                        selectedSize === option.size
                           ? 'bg-white text-black'
                           : 'bg-transparent text-white border border-white'
                       } hover:bg-white hover:text-black ${
@@ -100,9 +103,9 @@ const ProductDetails = ({ product }: { product: Product }) => {
                   </label>
                 ))}
               </div>
-              {selectedOption && (
+              {selectedSize && (
                 <h3 className="text-xl font-bold text-white">
-                  {sizes.find((option) => option.size === selectedOption)
+                  {sizes.find((option) => option.size === selectedSize)
                     ?.stock || 0}{' '}
                   in stock
                 </h3>
@@ -126,16 +129,16 @@ const ProductDetails = ({ product }: { product: Product }) => {
                       type="radio"
                       name="color"
                       value={option.color}
-                      checked={selectedOption === option.color}
+                      checked={selectedColor === option.color}
                       onChange={() =>
-                        option.stock > 0 && setSelectedOption(option.color)
+                        option.stock > 0 && setSelectedColor(option.color)
                       }
                       className="hidden"
                       disabled={option.stock === 0}
                     />
                     <span
                       className={`px-6 py-2 rounded-none font-myriad cursor-pointer ${
-                        selectedOption === option.color
+                        selectedColor === option.color
                           ? 'bg-white text-black'
                           : 'bg-transparent text-white border border-white'
                       } hover:bg-white hover:text-black ${
@@ -147,9 +150,9 @@ const ProductDetails = ({ product }: { product: Product }) => {
                   </label>
                 ))}
               </div>
-              {selectedOption && (
+              {selectedColor && (
                 <h3 className="text-xl font-bold text-white">
-                  {colors.find((option) => option.color === selectedOption)
+                  {colors.find((option) => option.color === selectedColor)
                     ?.stock || 0}{' '}
                   in stock
                 </h3>
@@ -175,7 +178,17 @@ const ProductDetails = ({ product }: { product: Product }) => {
 
           {/* Add to Bag Button */}
           <div className="mt-8">
-            <button className="uppercase bg-yellow-400 text-black px-6 py-3 rounded-none font-myriad font-semibold text-xl w-full hover:bg-yellow-500">
+            <button
+              className="uppercase bg-yellow-400 text-black px-6 py-3 rounded-none font-myriad font-semibold text-xl w-full hover:bg-yellow-500"
+              onClick={() => {
+                cart.addItem({
+                  item: product,
+                  quantity,
+                  color: selectedSize,
+                  size: selectedColor,
+                });
+              }}
+            >
               Add to Bag
             </button>
           </div>

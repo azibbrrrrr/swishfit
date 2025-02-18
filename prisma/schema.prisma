@@ -11,27 +11,41 @@ datasource db {
 }
 
 model Product {
-  id                     String          @id @default(uuid())
+  id                     String         @id @default(uuid())
   name                   String
   priceInCents           Int
   imagePath              String
   description            String
-  isAvailableForPurchase Boolean         @default(true)
-  createdAt              DateTime        @default(now())
-  updatedAt              DateTime        @updatedAt
+  isAvailableForPurchase Boolean        @default(true)
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
   orders                 Order[] // Product can have many orders
-  options                ProductOption[]
-  optionType             String // Represents the type of option (e.g., 'Size', 'Color')
+  sizes                  ProductSize[]
+  colors                 ProductColor[]
 }
 
-model ProductOption {
+model ProductSize {
   id        Int     @id @default(autoincrement())
   productId String
   product   Product @relation(fields: [productId], references: [id])
-  value     String
-  stock     Int // Available stock for this option
+  size      String
+  stock     Int // Available stock for this size
 
-  @@unique([productId, value])
+  productColorId Int? // Optional reference to ProductColor if the size is associated with a color
+  productColor   ProductColor? @relation(fields: [productColorId], references: [id])
+
+  @@unique([productId, size])
+}
+
+model ProductColor {
+  id        Int           @id @default(autoincrement())
+  productId String
+  product   Product       @relation(fields: [productId], references: [id])
+  color     String
+  stock     Int // Available stock for this color
+  sizes     ProductSize[] // Sizes associated with this color (if any)
+
+  @@unique([productId, color])
 }
 
 model User {

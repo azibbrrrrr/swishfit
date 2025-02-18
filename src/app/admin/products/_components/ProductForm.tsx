@@ -20,40 +20,32 @@ export function ProductForm({ product }: { product?: Product | null }) {
   const [priceInCents, setPriceInCents] = useState<number | undefined>(
     product?.priceInCents,
   );
-  const [optionType, setOptionType] = useState('');
   const [sizes, setSizes] = useState<{ size: string; stock: number }[]>([]);
-  const [colors, setColors] = useState<{ color: string; stock: number }[]>([]);
-
-  // // Print options list if it exists
-  // if (product.options && product.options.length > 0) {
-  //   console.log('Product options:', product.options);
-  // } else {
-  //   console.log('No options');
-  // }
-  // console.log('OPtions:', product?.options);
+  const [colors, setColors] = useState<
+    {
+      color: string;
+      stock: number;
+      hasSize: boolean;
+      sizes?: { size: string; stock: number }[];
+    }[]
+  >([]);
 
   useEffect(() => {
-    // Pre-fill the option types based on the product options
     if (product) {
-      setOptionType(product.optionType);
-
-      // Handle the 'size' option type
-      if (product.optionType === 'size') {
-        const sizeOptions = product.options
-          .filter((option) => option.value) // Assuming 'value' is the size name
-          .map((option) => ({
-            size: option.value, // Option value (size)
-            stock: option.stock || 0, // Ensure stock is set to 0 if not available
-          }));
-        setSizes(sizeOptions);
+      if (product.sizes) {
+        setSizes(
+          product.sizes.map((size) => ({ size: size.size, stock: size.stock })),
+        );
       }
-
-      // Handle the 'color' option type
-      if (product.optionType === 'color') {
-        const colorOptions = product.options
-          .filter((option) => option.value) // Assuming 'value' is the color name
-          .map((option) => option.value); // Only map the color names
-        setColors(colorOptions);
+      if (product.colors) {
+        setColors(
+          product.colors.map((color) => ({
+            color: color.color,
+            stock: color.stock,
+            hasSize: color.hasSize || false,
+            sizes: color.sizes || [],
+          })),
+        );
       }
     }
   }, [product]);
@@ -73,8 +65,43 @@ export function ProductForm({ product }: { product?: Product | null }) {
     setSizes(newSizes);
   };
 
+  const addColorSize = (colorIndex: number) => {
+    const newColors = [...colors];
+    const newSize = { size: '', stock: 0 };
+    if (newColors[colorIndex].sizes) {
+      newColors[colorIndex].sizes.push(newSize);
+    }
+    setColors(newColors);
+  };
+
+  const removeColorSize = (colorIndex: number, sizeIndex: number) => {
+    const newColors = [...colors];
+    if (newColors[colorIndex].sizes) {
+      newColors[colorIndex].sizes = newColors[colorIndex].sizes.filter(
+        (_, i) => i !== sizeIndex,
+      );
+    }
+    setColors(newColors);
+  };
+
+  const updateColorSize = (
+    colorIndex: number,
+    sizeIndex: number,
+    field: string,
+    value: string | number,
+  ) => {
+    const newColors = [...colors];
+    if (newColors[colorIndex].sizes) {
+      newColors[colorIndex].sizes[sizeIndex] = {
+        ...newColors[colorIndex].sizes[sizeIndex],
+        [field]: value,
+      };
+    }
+    setColors(newColors);
+  };
+
   const addColor = () => {
-    setColors([...colors, { color: '', stock: 0 }]);
+    setColors([...colors, { color: '', stock: 0, hasSize: false, sizes: [] }]);
   };
 
   const removeColor = (index: number) => {
@@ -84,7 +111,7 @@ export function ProductForm({ product }: { product?: Product | null }) {
   const updateColor = (
     index: number,
     field: string,
-    value: string | number,
+    value: string | number | boolean,
   ) => {
     const newColors = colors.map((s, i) =>
       i === index ? { ...s, [field]: value } : s,
@@ -94,8 +121,8 @@ export function ProductForm({ product }: { product?: Product | null }) {
 
   return (
     <form action={action} className="space-y-8">
-      {/* Name Field */}
       <div className="space-y-2">
+        {/* Name label */}
         <Label htmlFor="name">Name</Label>
         <Input
           type="text"
@@ -107,8 +134,8 @@ export function ProductForm({ product }: { product?: Product | null }) {
         {error.name && <div className="text-destructive">{error.name}</div>}
       </div>
 
-      {/* Price In Cents Field */}
       <div className="space-y-2">
+        {/* Price in cents label */}
         <Label htmlFor="priceInCents">Price In Cents</Label>
         <Input
           type="number"
@@ -126,8 +153,8 @@ export function ProductForm({ product }: { product?: Product | null }) {
         )}
       </div>
 
-      {/* Description Field */}
       <div className="space-y-2">
+        {/* Description label */}
         <Label htmlFor="description">Description</Label>
         <Textarea
           id="description"
@@ -140,39 +167,32 @@ export function ProductForm({ product }: { product?: Product | null }) {
         )}
       </div>
 
-      {/* Option Type Field */}
-      <div className="space-y-2">
-        <Label>Option Type</Label>
-        <select
-          className="border p-2 rounded w-full"
-          id="optionType"
-          name="optionType"
-          value={optionType}
-          onChange={(e) => setOptionType(e.target.value)}
-        >
-          <option value="">Select Option Type</option>
-          <option value="size">Size</option>
-          <option value="color">Color</option>
-        </select>
-      </div>
+      {/* Size & Stock Label */}
+      <div className="space-y-6">
+        {/* Sizes & Stock Label */}
+        <Label className="text-lg font-semibold">Sizes & Stock</Label>
 
-      {/* Sizes Input */}
-      {optionType === 'size' && (
-        <div className="space-y-2">
-          <Label>Sizes & Stock</Label>
-          {sizes.map((size, index) => (
-            <div key={index} className="flex space-x-2">
-              {/* Size Input */}
+        {/* Loop through the sizes */}
+        {sizes.map((size, index) => (
+          <div
+            key={index}
+            className="flex items-center space-x-4 p-4 border border-muted rounded-lg"
+          >
+            {/* Size Input */}
+            <div className="flex-1">
               <Input
                 type="text"
-                placeholder="Size"
+                placeholder="Size (e.g. S, M, L)"
                 value={size.size}
                 onChange={(e) => updateSize(index, 'size', e.target.value)}
-                name={`sizes[${index}][size]`} // Add unique name for each size input
-                id={`size-${index}`} // Add unique id for each size input
+                name={`sizes[${index}][size]`}
+                id={`size-${index}`}
+                className="border border-muted rounded-lg px-3 py-2 w-full"
               />
+            </div>
 
-              {/* Stock Input */}
+            {/* Stock Input */}
+            <div className="flex-1">
               <Input
                 type="number"
                 placeholder="Stock"
@@ -180,37 +200,61 @@ export function ProductForm({ product }: { product?: Product | null }) {
                 onChange={(e) =>
                   updateSize(index, 'stock', Number(e.target.value))
                 }
-                name={`sizes[${index}][stock]`} // Add unique name for each stock input
-                id={`stock-${index}`} // Add unique id for each stock input
+                name={`sizes[${index}][stock]`}
+                id={`stock-${index}`}
+                className="border border-muted rounded-lg px-3 py-2 w-full"
+                min="0"
               />
-              <Button type="button" onClick={() => removeSize(index)}>
-                Remove
-              </Button>
             </div>
-          ))}
-          <Button type="button" onClick={addSize}>
+
+            {/* Remove Size Button */}
+            <Button
+              className="bg-red-600 hover:bg-red-700 text-white rounded-md py-2 px-4"
+              type="button"
+              onClick={() => removeSize(index)}
+            >
+              Remove
+            </Button>
+          </div>
+        ))}
+
+        {/* Add Size Button */}
+        <div className="flex justify-between items-center">
+          <Button
+            className="bg-blue-600 hover:bg-blue-700 text-white rounded-md py-2 px-4"
+            type="button"
+            onClick={addSize}
+          >
             Add Size
           </Button>
+          <p className="text-sm">
+            Add sizes for your product (e.g., S, M, L) along with their stock
+            counts.
+          </p>
         </div>
-      )}
+      </div>
 
-      {/* Colors Input */}
-      {optionType === 'color' && (
-        <div className="space-y-2">
-          <Label>Colors</Label>
-          {colors.map((color, index) => (
-            <div key={index} className="flex space-x-2">
-              {/* Size Input */}
+      {/* Color & Size label */}
+      <div className="space-y-6">
+        <Label className="text-lg font-semibold">Colors</Label>
+        {colors.map((color, index) => (
+          <div
+            key={index}
+            className="space-y-6 p-4 border border-muted rounded-lg"
+          >
+            <div className="flex items-center space-x-4">
+              {/* Color Name Input */}
               <Input
                 type="text"
-                placeholder="Size"
+                placeholder="Color"
                 value={color.color}
                 onChange={(e) => updateColor(index, 'color', e.target.value)}
-                name={`colors[${index}][color]`} // Add unique name for each size input
-                id={`color-${index}`} // Add unique id for each size input
+                name={`colors[${index}][color]`}
+                id={`color-${index}`}
+                className="border border-muted rounded-lg px-3 py-2 w-48"
               />
 
-              {/* Stock Input */}
+              {/* Stock Input for Color */}
               <Input
                 type="number"
                 placeholder="Stock"
@@ -218,19 +262,108 @@ export function ProductForm({ product }: { product?: Product | null }) {
                 onChange={(e) =>
                   updateColor(index, 'stock', Number(e.target.value))
                 }
-                name={`colors[${index}][stock]`} // Add unique name for each stock input
-                id={`stock-${index}`} // Add unique id for each stock input
+                name={`colors[${index}][stock]`}
+                id={`stock-${index}`}
+                disabled={color.hasSize}
+                className="border border-muted rounded-lg px-3 py-2 w-32"
               />
-              <Button type="button" onClick={() => removeColor(index)}>
-                Remove
-              </Button>
+
+              {/* Has Size Checkbox */}
+              <div className="flex items-center space-x-2">
+                <Label className="text-sm">Has Size</Label>
+                <input
+                  type="checkbox"
+                  checked={color.hasSize}
+                  onChange={(e) =>
+                    updateColor(index, 'hasSize', e.target.checked)
+                  }
+                  className="cursor-pointer"
+                />
+              </div>
             </div>
-          ))}
-          <Button type="button" onClick={addColor}>
-            Add Color
-          </Button>
-        </div>
-      )}
+
+            {/* Size Management for Color with Sizes */}
+            {color.hasSize && (
+              <div className="space-y-4 mt-4">
+                <div className="flex items-center justify-between space-x-4">
+                  <Label className="text-md">Size Options</Label>
+                  <Button
+                    className="bg-green-600 hover:bg-green-700 text-white rounded-md py-2 px-4"
+                    type="button"
+                    onClick={() => addColorSize(index)}
+                  >
+                    Add Size
+                  </Button>
+                </div>
+
+                {/* Loop through Sizes */}
+                {color.sizes?.map((size, sizeIndex) => (
+                  <div key={sizeIndex} className="flex items-center space-x-4">
+                    <Input
+                      type="text"
+                      placeholder="Size (e.g. S, M, L)"
+                      value={size.size}
+                      onChange={(e) =>
+                        updateColorSize(
+                          index,
+                          sizeIndex,
+                          'size',
+                          e.target.value,
+                        )
+                      }
+                      name={`colors[${index}][sizes][${sizeIndex}][size]`}
+                      id={`size-${index}-${sizeIndex}`}
+                      className="border border-muted rounded-lg px-3 py-2 w-40"
+                    />
+
+                    <Input
+                      type="number"
+                      placeholder="Stock"
+                      value={size.stock}
+                      onChange={(e) =>
+                        updateColorSize(
+                          index,
+                          sizeIndex,
+                          'stock',
+                          Number(e.target.value),
+                        )
+                      }
+                      name={`colors[${index}][sizes][${sizeIndex}][stock]`}
+                      id={`stock-${index}-${sizeIndex}`}
+                      className="border border-muted rounded-lg px-3 py-2 w-32"
+                    />
+                    <Button
+                      className="bg-red-600 hover:bg-red-700 text-white rounded-md py-2 px-4"
+                      type="button"
+                      onClick={() => removeColorSize(index, sizeIndex)}
+                    >
+                      Remove Size
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Remove Color Button */}
+            <Button
+              className="bg-red-600 hover:bg-red-700 text-white rounded-md py-2 px-4"
+              type="button"
+              onClick={() => removeColor(index)}
+            >
+              Remove Color
+            </Button>
+          </div>
+        ))}
+
+        {/* Add Color Button */}
+        <Button
+          className="bg-blue-600 hover:bg-blue-700 text-white rounded-md py-2 px-4"
+          type="button"
+          onClick={addColor}
+        >
+          Add Color
+        </Button>
+      </div>
 
       {/* Image Upload Field */}
       <div className="space-y-2">
