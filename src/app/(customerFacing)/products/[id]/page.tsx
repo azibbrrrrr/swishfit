@@ -12,7 +12,8 @@ export default async function ProductPage({
   const product = await db.product.findUnique({
     where: { id },
     include: {
-      options: true, // Include product options (size, color)
+      sizes: true, // Include product options (size, color)
+      colors: true, // Include product options (size, color)
     },
   });
   // Return 404 if the product is not found

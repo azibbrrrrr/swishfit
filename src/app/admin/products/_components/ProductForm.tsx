@@ -7,10 +7,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { formatCurrency } from '@/lib/formatters';
 import { useState, useEffect } from 'react';
 import { addProduct, updateProduct } from '../../_actions/product';
-import { useFormStatus } from 'react-dom';
 import { useActionState } from 'react';
 import { Product } from '@prisma/client';
 import Image from 'next/image';
+import { useFormStatus } from 'react-dom';
 
 export function ProductForm({ product }: { product?: Product | null }) {
   const [error, action] = useActionState(
@@ -29,6 +29,7 @@ export function ProductForm({ product }: { product?: Product | null }) {
       sizes?: { size: string; stock: number }[];
     }[]
   >([]);
+  const [hasColor, setHasColor] = useState<boolean>(product?.hasColor || false);
 
   useEffect(() => {
     if (product) {
@@ -167,202 +168,196 @@ export function ProductForm({ product }: { product?: Product | null }) {
         )}
       </div>
 
-      {/* Size & Stock Label */}
-      <div className="space-y-6">
-        {/* Sizes & Stock Label */}
-        <Label className="text-lg font-semibold">Sizes & Stock</Label>
-
-        {/* Loop through the sizes */}
-        {sizes.map((size, index) => (
-          <div
-            key={index}
-            className="flex items-center space-x-4 p-4 border border-muted rounded-lg"
-          >
-            {/* Size Input */}
-            <div className="flex-1">
-              <Input
-                type="text"
-                placeholder="Size (e.g. S, M, L)"
-                value={size.size}
-                onChange={(e) => updateSize(index, 'size', e.target.value)}
-                name={`sizes[${index}][size]`}
-                id={`size-${index}`}
-                className="border border-muted rounded-lg px-3 py-2 w-full"
-              />
-            </div>
-
-            {/* Stock Input */}
-            <div className="flex-1">
-              <Input
-                type="number"
-                placeholder="Stock"
-                value={size.stock}
-                onChange={(e) =>
-                  updateSize(index, 'stock', Number(e.target.value))
-                }
-                name={`sizes[${index}][stock]`}
-                id={`stock-${index}`}
-                className="border border-muted rounded-lg px-3 py-2 w-full"
-                min="0"
-              />
-            </div>
-
-            {/* Remove Size Button */}
-            <Button
-              className="bg-red-600 hover:bg-red-700 text-white rounded-md py-2 px-4"
-              type="button"
-              onClick={() => removeSize(index)}
-            >
-              Remove
-            </Button>
-          </div>
-        ))}
-
-        {/* Add Size Button */}
-        <div className="flex justify-between items-center">
-          <Button
-            className="bg-blue-600 hover:bg-blue-700 text-white rounded-md py-2 px-4"
-            type="button"
-            onClick={addSize}
-          >
-            Add Size
-          </Button>
-          <p className="text-sm">
-            Add sizes for your product (e.g., S, M, L) along with their stock
-            counts.
-          </p>
+      <div className="space-y-2">
+        {/* Checkbox for Has Color */}
+        <div className="flex items-center space-x-2">
+          <Label htmlFor="hasColor">Has Color Options?</Label>
+          <input
+            type="checkbox"
+            id="hasColor"
+            name="hasColor"
+            checked={hasColor}
+            onChange={() => setHasColor(!hasColor)}
+          />
         </div>
       </div>
 
-      {/* Color & Size label */}
+      {/* Size & Stock or Size Management for Color */}
       <div className="space-y-6">
-        <Label className="text-lg font-semibold">Colors</Label>
-        {colors.map((color, index) => (
-          <div
-            key={index}
-            className="space-y-6 p-4 border border-muted rounded-lg"
-          >
-            <div className="flex items-center space-x-4">
-              {/* Color Name Input */}
-              <Input
-                type="text"
-                placeholder="Color"
-                value={color.color}
-                onChange={(e) => updateColor(index, 'color', e.target.value)}
-                name={`colors[${index}][color]`}
-                id={`color-${index}`}
-                className="border border-muted rounded-lg px-3 py-2 w-48"
-              />
+        {hasColor ? (
+          // Size Management for Color
+          <div className="space-y-6">
+            <Label className="text-lg font-semibold">Colors</Label>
+            {colors.map((color, index) => (
+              <div
+                key={index}
+                className="space-y-6 p-4 border border-muted rounded-lg"
+              >
+                <div className="flex items-center space-x-4">
+                  <Input
+                    type="text"
+                    placeholder="Color"
+                    value={color.color}
+                    onChange={(e) =>
+                      updateColor(index, 'color', e.target.value)
+                    }
+                    name={`colors[${index}][color]`}
+                    id={`color-${index}`}
+                    className="border border-muted rounded-lg px-3 py-2 w-48"
+                  />
 
-              {/* Stock Input for Color */}
-              <Input
-                type="number"
-                placeholder="Stock"
-                value={color.stock}
-                onChange={(e) =>
-                  updateColor(index, 'stock', Number(e.target.value))
-                }
-                name={`colors[${index}][stock]`}
-                id={`stock-${index}`}
-                disabled={color.hasSize}
-                className="border border-muted rounded-lg px-3 py-2 w-32"
-              />
-
-              {/* Has Size Checkbox */}
-              <div className="flex items-center space-x-2">
-                <Label className="text-sm">Has Size</Label>
-                <input
-                  type="checkbox"
-                  checked={color.hasSize}
-                  onChange={(e) =>
-                    updateColor(index, 'hasSize', e.target.checked)
-                  }
-                  className="cursor-pointer"
-                />
-              </div>
-            </div>
-
-            {/* Size Management for Color with Sizes */}
-            {color.hasSize && (
-              <div className="space-y-4 mt-4">
-                <div className="flex items-center justify-between space-x-4">
-                  <Label className="text-md">Size Options</Label>
-                  <Button
-                    className="bg-green-600 hover:bg-green-700 text-white rounded-md py-2 px-4"
-                    type="button"
-                    onClick={() => addColorSize(index)}
-                  >
-                    Add Size
-                  </Button>
+                  <Input
+                    type="number"
+                    placeholder="Stock"
+                    value={color.stock}
+                    onChange={(e) =>
+                      updateColor(index, 'stock', Number(e.target.value))
+                    }
+                    name={`colors[${index}][stock]`}
+                    id={`stock-${index}`}
+                    disabled={color.hasSize}
+                    className="border border-muted rounded-lg px-3 py-2 w-32"
+                  />
                 </div>
 
-                {/* Loop through Sizes */}
-                {color.sizes?.map((size, sizeIndex) => (
-                  <div key={sizeIndex} className="flex items-center space-x-4">
-                    <Input
-                      type="text"
-                      placeholder="Size (e.g. S, M, L)"
-                      value={size.size}
-                      onChange={(e) =>
-                        updateColorSize(
-                          index,
-                          sizeIndex,
-                          'size',
-                          e.target.value,
-                        )
-                      }
-                      name={`colors[${index}][sizes][${sizeIndex}][size]`}
-                      id={`size-${index}-${sizeIndex}`}
-                      className="border border-muted rounded-lg px-3 py-2 w-40"
-                    />
+                {/* Size Management for Color */}
+                {color.hasSize && (
+                  <div className="space-y-4 mt-4">
+                    {color.sizes?.map((size, sizeIndex) => (
+                      <div
+                        key={sizeIndex}
+                        className="flex items-center space-x-4"
+                      >
+                        <Input
+                          type="text"
+                          placeholder="Size (e.g. S, M, L)"
+                          value={size.size}
+                          onChange={(e) =>
+                            updateColorSize(
+                              index,
+                              sizeIndex,
+                              'size',
+                              e.target.value,
+                            )
+                          }
+                          name={`colors[${index}][sizes][${sizeIndex}][size]`}
+                          id={`size-${index}-${sizeIndex}`}
+                          className="border border-muted rounded-lg px-3 py-2 w-40"
+                        />
 
-                    <Input
-                      type="number"
-                      placeholder="Stock"
-                      value={size.stock}
-                      onChange={(e) =>
-                        updateColorSize(
-                          index,
-                          sizeIndex,
-                          'stock',
-                          Number(e.target.value),
-                        )
-                      }
-                      name={`colors[${index}][sizes][${sizeIndex}][stock]`}
-                      id={`stock-${index}-${sizeIndex}`}
-                      className="border border-muted rounded-lg px-3 py-2 w-32"
-                    />
+                        <Input
+                          type="number"
+                          placeholder="Stock"
+                          value={size.stock}
+                          onChange={(e) =>
+                            updateColorSize(
+                              index,
+                              sizeIndex,
+                              'stock',
+                              Number(e.target.value),
+                            )
+                          }
+                          name={`colors[${index}][sizes][${sizeIndex}][stock]`}
+                          id={`stock-${index}-${sizeIndex}`}
+                          className="border border-muted rounded-lg px-3 py-2 w-32"
+                        />
+                        <Button
+                          className="bg-red-600 hover:bg-red-700 text-white rounded-md py-2 px-4"
+                          type="button"
+                          onClick={() => removeColorSize(index, sizeIndex)}
+                        >
+                          Remove Size
+                        </Button>
+                      </div>
+                    ))}
                     <Button
-                      className="bg-red-600 hover:bg-red-700 text-white rounded-md py-2 px-4"
+                      className="bg-green-600 hover:bg-green-700 text-white rounded-md py-2 px-4"
                       type="button"
-                      onClick={() => removeColorSize(index, sizeIndex)}
+                      onClick={() => addColorSize(index)}
                     >
-                      Remove Size
+                      Add Size for {color.color}
                     </Button>
                   </div>
-                ))}
-              </div>
-            )}
+                )}
+                <div className="flex items-center">
+                  <Label className="mr-2">Has Sizes?</Label>
+                  <input
+                    type="checkbox"
+                    checked={color.hasSize}
+                    onChange={() =>
+                      updateColor(index, 'hasSize', !color.hasSize)
+                    }
+                  />
+                </div>
 
-            {/* Remove Color Button */}
+                <Button
+                  className="bg-red-600 hover:bg-red-700 text-white rounded-md py-2 px-4"
+                  type="button"
+                  onClick={() => removeColor(index)}
+                >
+                  Remove Color
+                </Button>
+              </div>
+            ))}
             <Button
-              className="bg-red-600 hover:bg-red-700 text-white rounded-md py-2 px-4"
+              className="bg-blue-600 hover:bg-blue-700 text-white rounded-md py-2 px-4"
               type="button"
-              onClick={() => removeColor(index)}
+              onClick={addColor}
             >
-              Remove Color
+              Add Color
             </Button>
           </div>
-        ))}
+        ) : (
+          // Size & Stock
+          <div className="space-y-4">
+            {sizes.map((size, index) => (
+              <div
+                key={index}
+                className="flex items-center space-x-4 p-4 border border-muted rounded-lg"
+              >
+                <div className="flex-1">
+                  <Input
+                    type="text"
+                    placeholder="Size (e.g., S, M, L)"
+                    value={size.size}
+                    onChange={(e) => updateSize(index, 'size', e.target.value)}
+                    name={`sizes[${index}][size]`}
+                    id={`size-${index}`}
+                    className="border border-muted rounded-lg px-3 py-2 w-40"
+                  />
+                </div>
 
-        {/* Add Color Button */}
-        <Button
-          className="bg-blue-600 hover:bg-blue-700 text-white rounded-md py-2 px-4"
-          type="button"
-          onClick={addColor}
-        >
-          Add Color
-        </Button>
+                <div className="flex-1">
+                  <Input
+                    type="number"
+                    placeholder="Stock"
+                    value={size.stock}
+                    onChange={(e) =>
+                      updateSize(index, 'stock', Number(e.target.value))
+                    }
+                    name={`sizes[${index}][stock]`}
+                    id={`stock-${index}`}
+                    className="border border-muted rounded-lg px-3 py-2 w-32"
+                  />
+                </div>
+                <Button
+                  className="bg-red-600 hover:bg-red-700 text-white rounded-md py-2 px-4"
+                  type="button"
+                  onClick={() => removeSize(index)}
+                >
+                  Remove Size
+                </Button>
+              </div>
+            ))}
+            <Button
+              className="bg-blue-600 hover:bg-blue-700 text-white rounded-md py-2 px-4"
+              type="button"
+              onClick={addSize}
+            >
+              Add Size
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Image Upload Field */}

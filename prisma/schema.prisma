@@ -22,19 +22,20 @@ model Product {
   orders                 Order[] // Product can have many orders
   sizes                  ProductSize[]
   colors                 ProductColor[]
+  hasColor               Boolean        @default(false)
 }
 
 model ProductSize {
-  id        Int     @id @default(autoincrement())
-  productId String
-  product   Product @relation(fields: [productId], references: [id])
-  size      String
-  stock     Int // Available stock for this size
-
+  id             Int           @id @default(autoincrement())
+  productId      String
+  product        Product       @relation(fields: [productId], references: [id])
+  size           String
+  stock          Int // Available stock for this size
   productColorId Int? // Optional reference to ProductColor if the size is associated with a color
   productColor   ProductColor? @relation(fields: [productColorId], references: [id])
 
   @@unique([productId, size])
+  @@index([productColorId]) // Added index to improve lookups based on productColorId
 }
 
 model ProductColor {
@@ -45,7 +46,8 @@ model ProductColor {
   stock     Int // Available stock for this color
   sizes     ProductSize[] // Sizes associated with this color (if any)
 
-  @@unique([productId, color])
+  @@unique([productId, color]) // Unique constraint on productId and color
+  @@index([productId]) // Added index on productId to speed up queries involving productId
 }
 
 model User {
