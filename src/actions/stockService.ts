@@ -89,11 +89,32 @@ export const replaceAllStock = async (
   });
 };
 
-/**
- * Delete all stock variations of a product
- */
-export const deleteProductStock = async (productId: string) => {
-  await db.productVariation.deleteMany({
-    where: { productId },
+export const decreaseStock = async (
+  productId: string,
+  filters: { size?: string; color?: string },
+  amountToDecrease: number
+) => {
+  if (!filters.size && !filters.color) {
+    throw new Error("At least one of size or color must be provided.");
+  }
+
+  const existingVariation = await db.productVariation.findFirst({
+    where: {
+      productId,
+      ...(filters.size && { size: filters.size }),
+      ...(filters.color && { color: filters.color }),
+    },
+  });
+
+  if (!existingVariation) {
+    throw new Error("Stock variation not found.");
+  }
+
+  const newStock = Math.max(0, existingVariation.stock - amountToDecrease);
+
+  return await db.productVariation.update({
+    where: { id: existingVariation.id },
+    data: { stock: newStock },
   });
 };
+

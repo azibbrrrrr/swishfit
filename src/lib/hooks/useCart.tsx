@@ -53,15 +53,23 @@ const useCart = create(
         set({ cartItems: newCartItems });
         toast.success('Item quantity increased');
       },
-      decreaseQuantity: (idToDecrease: String) => {
-        const newCartItems = get().cartItems.map((cartItem) =>
-          cartItem.item.id === idToDecrease
-            ? { ...cartItem, quantity: cartItem.quantity - 1 }
-            : cartItem,
-        );
+      decreaseQuantity: (idToDecrease: string) => {
+        const newCartItems = get().cartItems.map((cartItem) => {
+          if (cartItem.item.id === idToDecrease) {
+            const newQuantity = Math.max(1, cartItem.quantity - 1);
+
+            if (cartItem.quantity > 1) {
+              toast.success('Item quantity decreased');
+            }
+
+            return { ...cartItem, quantity: newQuantity };
+          }
+          return cartItem;
+        });
+
         set({ cartItems: newCartItems });
-        toast.success('Item quantity decreased');
       },
+
       clearCart: () => set({ cartItems: [] }),
     }),
     {

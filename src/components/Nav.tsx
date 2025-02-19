@@ -8,9 +8,12 @@ import { BiShoppingBag } from 'react-icons/bi';
 import { FiMenu, FiX } from 'react-icons/fi';
 import Image from 'next/image';
 import React from 'react';
+import useCart from '@/lib/hooks/useCart';
+import { ShoppingBag } from 'lucide-react';
 
 export function Nav({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
+  const cart = useCart();
 
   return (
     <nav className="fixed top-0 left-0 w-full bg-[#43286D] text-white shadow-xl z-50">
@@ -52,8 +55,18 @@ export function Nav({ children }: { children: ReactNode }) {
         </div>
 
         {/* Right side: Cart Icon */}
-        <div className="hidden md:flex items-center">
-          <BiShoppingBag className="text-white text-3xl" />
+        <div className="md:flex items-center">
+          <Link
+            href="/cart"
+            className="relative flex items-center gap-3 px-2 py-1"
+          >
+            <ShoppingBag className="w-6 h-6" />
+            {cart.cartItems.length > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white text-xs font-bold">
+                {cart.cartItems.length}
+              </span>
+            )}
+          </Link>
         </div>
       </div>
     </nav>

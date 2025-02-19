@@ -152,7 +152,7 @@ const ProductDetails = ({
           <div className="mt-8">
             <button
               className={`uppercase bg-yellow-400 text-black px-6 py-3 font-myriad font-semibold text-xl w-full ${
-                getStockForSelection() > 0
+                getStockForSelection() > 0 && (selectedSize || selectedColor)
                   ? 'hover:bg-yellow-500'
                   : 'opacity-50 cursor-not-allowed'
               }`}
@@ -161,8 +161,8 @@ const ProductDetails = ({
                 cart.addItem({
                   item: product,
                   quantity,
-                  color: selectedColor || undefined,
-                  size: selectedSize || undefined,
+                  color: selectedColor,
+                  size: selectedSize,
                 })
               }
             >

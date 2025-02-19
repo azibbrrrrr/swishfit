@@ -19,8 +19,8 @@ model Product {
   isAvailableForPurchase Boolean            @default(true)
   createdAt              DateTime           @default(now())
   updatedAt              DateTime           @updatedAt
-  orders                 Order[] // Product can have many orders
   variations             ProductVariation[]
+  OrderItem              OrderItem[]
 }
 
 model ProductVariation {
@@ -43,13 +43,25 @@ model User {
 }
 
 model Order {
-  id               String   @id @default(uuid())
-  pricePaidInCents Int
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  userId           String
-  productId        String
-  selectedSize     String // Added the selected size field
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  product          Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  id                String      @id @default(uuid())
+  userId            String
+  totalPriceInCents Int
+  shippingAddress   String
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderItems        OrderItem[]
+}
+
+model OrderItem {
+  id           String  @id @default(uuid())
+  orderId      String
+  productId    String
+  productName  String
+  size         String?
+  color        String?
+  quantity     Int
+  priceAtOrder Int
+  order        Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product      Product @relation(fields: [productId], references: [id], onDelete: Restrict)
 }
