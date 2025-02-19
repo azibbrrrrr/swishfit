@@ -11,8 +11,7 @@ export default async function EditProductPage({
   const product = await db.product.findUnique({
     where: { id },
     include: {
-      sizes: true, // This will fetch the related options
-      colors: true, // This will fetch the related options
+      variations: true,
     },
   });
 
