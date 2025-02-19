@@ -1,7 +1,6 @@
 import { db } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import ProductDetails from './purchase/_components/ProductForm';
-import { Product } from '@prisma/client';
+import ProductDetails from '../../../../components/ProductDetails';
 
 export default async function ProductPage({
   params,
@@ -12,8 +11,7 @@ export default async function ProductPage({
   const product = await db.product.findUnique({
     where: { id },
     include: {
-      sizes: true, // Include product options (size, color)
-      colors: true, // Include product options (size, color)
+      variations: true, // Include product variations
     },
   });
   // Return 404 if the product is not found

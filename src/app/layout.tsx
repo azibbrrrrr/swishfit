@@ -26,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`bg-background min-h-screen ${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`bg-background min-h-screen ${geistSans.variable} ${geistMono.variable} antialiased pt-16`}
       >
         <ToasterProvider />
         {children}
