@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -20,19 +17,19 @@ model Product {
   isAvailableForPurchase Boolean            @default(true)
   createdAt              DateTime           @default(now())
   updatedAt              DateTime           @updatedAt
-  variations             ProductVariation[]
   OrderItem              OrderItem[]
+  variations             ProductVariation[]
 }
 
 model ProductVariation {
   id        String  @id @default(uuid())
-  product   Product @relation(fields: [productId], references: [id])
   productId String
-  size      String? // Optional size
-  color     String? // Optional color
-  stock     Int // Stock for this variation
+  size      String?
+  color     String?
+  stock     Int
+  product   Product @relation(fields: [productId], references: [id])
 
-  @@unique([productId, size, color]) // Ensure unique combination
+  @@unique([productId, size, color])
 }
 
 model User {
@@ -40,7 +37,7 @@ model User {
   email     String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  orders    Order[] // User can have many orders
+  orders    Order[]
 }
 
 model Order {
@@ -64,5 +61,5 @@ model OrderItem {
   quantity     Int
   priceAtOrder Int
   order        Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product      Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  product      Product @relation(fields: [productId], references: [id])
 }
