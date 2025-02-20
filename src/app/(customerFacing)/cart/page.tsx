@@ -4,12 +4,10 @@ import { formatCurrency } from '@/lib/formatters';
 import useCart from '@/lib/hooks/useCart';
 import { MinusCircle, PlusCircle, Trash } from 'lucide-react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { CheckoutModal } from './CheckoutModal';
 
 const Cart = () => {
-  const router = useRouter();
   const cart = useCart();
   const [isModalOpen, setIsModalOpen] = useState(false);
 

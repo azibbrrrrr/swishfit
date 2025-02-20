@@ -1,13 +1,13 @@
+import ProductDetails from '@/components/ProductDetails';
 import { db } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import ProductDetails from '../../../../components/ProductDetails';
 
 export default async function ProductPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const { id } = await params; // Await params to resolve its value
+  const { id } = await params;
   const product = await db.product.findUnique({
     where: { id },
     include: {

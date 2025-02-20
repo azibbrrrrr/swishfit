@@ -8,7 +8,9 @@ const SuccessfulPayment = () => {
   const cart = useCart();
 
   useEffect(() => {
-    cart.clearCart();
+    if (cart.clearCart) {
+      cart.clearCart();
+    }
   }, []);
 
   return (

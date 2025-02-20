@@ -48,15 +48,6 @@ export function ProductForm({
     setVariations(variations.filter((_, i) => i !== index));
   };
 
-  const sizeOrder = ['S', 'M', 'L', 'XL', '2XL'];
-
-  const sortedVariations = [...variations].sort((a, b) => {
-    const sizeA = a.size ?? ''; // If null, use empty string
-    const sizeB = b.size ?? '';
-
-    return sizeOrder.indexOf(sizeA) - sizeOrder.indexOf(sizeB);
-  });
-
   return (
     <form action={action} className="space-y-8">
       {/* Product name */}
@@ -121,9 +112,10 @@ export function ProductForm({
       </div>
 
       {/* Product Variations */}
+      {/* Product Variations */}
       <div className="space-y-2">
         <Label>Variations</Label>
-        {sortedVariations.map((variation, index) => (
+        {variations.map((variation, index) => (
           <div key={index} className="flex space-x-2">
             <Input
               type="text"
@@ -157,6 +149,7 @@ export function ProductForm({
           Add Variation
         </Button>
       </div>
+
       <SubmitButton />
     </form>
   );

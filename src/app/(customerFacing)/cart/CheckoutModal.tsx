@@ -12,7 +12,27 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-export const CheckoutModal = ({ cartItems, onClose }) => {
+interface CartItem {
+  item: {
+    id: string;
+    name: string;
+    priceInCents: number;
+    imagePath: string;
+  };
+  size?: string;
+  color?: string;
+  quantity: number;
+}
+
+interface CheckoutModalProps {
+  cartItems: CartItem[]; // ✅ Matches the type from useCart
+  onClose: () => void;
+}
+
+export const CheckoutModal: React.FC<CheckoutModalProps> = ({
+  cartItems,
+  onClose,
+}) => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
 

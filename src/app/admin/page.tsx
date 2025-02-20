@@ -7,13 +7,7 @@ import {
 } from '@/components/ui/card';
 import { db } from '@/lib/prisma';
 import { formatCurrency, formatNumber } from '@/lib/formatters';
-import {
-  TrendingUp,
-  ShoppingCart,
-  Users,
-  LineChart,
-  AlertCircle,
-} from 'lucide-react';
+import { TrendingUp, ShoppingCart, Users, AlertCircle } from 'lucide-react';
 
 async function getSalesData() {
   const last30Days = new Date();

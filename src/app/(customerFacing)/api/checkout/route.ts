@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  typescript: true,
-});
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -15,7 +11,21 @@ export async function OPTIONS() {
   return NextResponse.json({}, { headers: corsHeaders });
 }
 
+// Define a TypeScript interface for cart items
+interface CartItem {
+  item: {
+    id: string;
+    name: string;
+    priceInCents: number;
+  };
+  size?: string;
+  color?: string;
+  quantity: number;
+}
+
 export async function POST(req: NextRequest) {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string)
+
   try {
     const { cartItems, email } = await req.json();
 
@@ -30,18 +40,18 @@ export async function POST(req: NextRequest) {
       shipping_address_collection: {
         allowed_countries: ["MY"],
       },
-      line_items: cartItems.map((cartItem: any) => ({
+      line_items: cartItems.map((cartItem: CartItem) => ({
         price_data: {
           currency: 'myr',
           product_data: {
-            name: cartItem.item.name, // Use correct field
+            name: cartItem.item.name,
             metadata: {
               productId: cartItem.item.id,
               ...(cartItem.size && { size: cartItem.size }),
               ...(cartItem.color && { color: cartItem.color }),
             },
           },
-          unit_amount: cartItem.item.priceInCents, // // Price is already in cents
+          unit_amount: cartItem.item.priceInCents,
         },
         quantity: cartItem.quantity,
       })),

@@ -8,12 +8,6 @@ import {
 } from '@/components/ui/table';
 import { formatCurrency, formatNumber } from '@/lib/formatters';
 import { PageHeader } from '../_components/PageHeader';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { MoreVertical } from 'lucide-react';
 import { DeleteDropDownItem } from './_components/OrderActions';
 import { db } from '@/lib/prisma';
 import OrderChart from './_components/OrderChart';

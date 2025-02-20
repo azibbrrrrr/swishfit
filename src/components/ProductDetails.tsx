@@ -47,17 +47,28 @@ const ProductDetails = ({
 
   const handleSizeSelect = (size: string) => {
     setSelectedSize(size);
-    const filteredColors = product.variations
-      .filter((v) => v.size === size && v.color)
-      .map((v) => ({ color: v.color!, stock: v.stock }));
+    const filteredColors =
+      product.variations
+        ?.filter((v) => v.size === size && v.color)
+        .map((v) => ({ color: v.color!, stock: v.stock })) ?? [];
     setColors(filteredColors);
   };
 
+  // const handleColorSelect = (color: string) => {
+  //   setSelectedColor(color);
+  //   const filteredSizes =
+  //     product.variations
+  //       ?.filter((v) => v.size === color && v.size)
+  //       .map((v) => ({ size: v.color!, stock: v.stock })) ?? [];
+  //   setSizes(filteredSizes);
+  // };
+
   const handleColorSelect = (color: string) => {
     setSelectedColor(color);
-    const filteredSizes = product.variations
-      .filter((v) => v.color === color && v.size)
-      .map((v) => ({ size: v.size!, stock: v.stock }));
+    const filteredSizes =
+      product.variations
+        ?.filter((v) => v.color === color && v.size)
+        .map((v) => ({ size: v.size!, stock: v.stock })) ?? [];
     setSizes(filteredSizes);
   };
 

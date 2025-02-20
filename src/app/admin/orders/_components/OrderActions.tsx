@@ -1,6 +1,5 @@
 'use client';
 
-import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { deleteOrder } from '../../_actions/orders';

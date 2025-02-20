@@ -37,14 +37,14 @@ const useCart = create(
         set({ cartItems: [...currentItems, { item, quantity, color, size }] });
         toast.success('Item added to cart', { icon: '🛒' });
       },
-      removeItem: (idToRemove: String) => {
+      removeItem: (idToRemove: string) => {
         const newCartItems = get().cartItems.filter(
           (cartItem) => cartItem.item.id !== idToRemove,
         );
         set({ cartItems: newCartItems });
         toast.success('Item removed from cart');
       },
-      increaseQuantity: (idToIncrease: String) => {
+      increaseQuantity: (idToIncrease: string) => {
         const newCartItems = get().cartItems.map((cartItem) =>
           cartItem.item.id === idToIncrease
             ? { ...cartItem, quantity: cartItem.quantity + 1 }

@@ -39,6 +39,7 @@ export default function MyOrdersPage() {
         setMessage(`Error: ${data.error}`);
       }
     } catch (error) {
+      console.error('Error sending email:', error);
       setMessage('Failed to send email. Please try again.');
     }
 

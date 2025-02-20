@@ -4,7 +4,7 @@ import { z } from "zod"
 import fs from "fs/promises"
 import { notFound, redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
-import { createProductWithStock, replaceAllStock, updateStock } from "@/actions/stockService"
+import { createProductWithStock, replaceAllStock } from "@/actions/stockService"
 import { db } from "@/lib/prisma"
 
 // Validation schemas
@@ -45,11 +45,11 @@ export async function addProduct(prevState: unknown, formData: FormData) {
       const field = match[2]; // Extract field name: "size", "color", or "stock"
       if (field === "stock") {
         variations[index].stock = Number(value); // Convert stock to number
-      } else {
-        (variations[index] as Record<string, any>)[field] = value; // Assign size/color
+      } else if (field === "size" || field === "color") {
+        variations[index][field] = value as string;
       }
     }
-  }  
+  } 
 
   // Validate variations
   const validatedVariations = variations.map(v => variationSchema.parse(v))
@@ -94,8 +94,6 @@ export async function updateProduct(
   const result = editSchema.safeParse(Object.fromEntries(formData.entries()))
   if (!result.success) return result.error.formErrors.fieldErrors
 
-  const data = result.data
-
   // Extract variations from FormData
   const variations: { size?: string; color?: string; stock: number }[] = [];
 
@@ -108,8 +106,8 @@ export async function updateProduct(
       const field = match[2]; // Extract field name: "size", "color", or "stock"
       if (field === "stock") {
         variations[index].stock = Number(value); // Convert stock to number
-      } else {
-        (variations[index] as Record<string, any>)[field] = value; // Assign size/color
+      }  else if (field === "size" || field === "color") {
+        variations[index][field] = value as string; 
       }
     }
   }

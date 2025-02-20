@@ -118,3 +118,7 @@ export const decreaseStock = async (
   });
 };
 
+export const findUser = async (email: string) => {
+  return await db.user.findUnique({
+    where: { email }})
+}
