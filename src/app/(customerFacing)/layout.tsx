@@ -1,3 +1,4 @@
+import Footer from '@/components/Footer';
 import { Nav, NavLink } from '@/components/Nav';
 
 export const dynamic = 'force-dynamic';
@@ -14,6 +15,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       {/* Main Content */}
       <main className="bg-white min-h-screen">{children}</main>
+
+      {/* Footer */}
+      <Footer></Footer>
     </div>
   );
 }

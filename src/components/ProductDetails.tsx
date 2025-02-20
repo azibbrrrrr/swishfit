@@ -61,6 +61,14 @@ const ProductDetails = ({
     setSizes(filteredSizes);
   };
 
+  // Define the correct size order
+  const sizeOrder = ['S', 'M', 'L', 'XL', '2XL'];
+
+  // Sort sizes based on the predefined order
+  const sortedSizes = sizes.sort(
+    (a, b) => sizeOrder.indexOf(a.size) - sizeOrder.indexOf(b.size),
+  );
+
   return (
     <div className="bg-[#2E1D4F] px-6 md:px-20 py-6 w-full min-h-screen">
       <div className="max-w-screen-xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
@@ -113,7 +121,7 @@ const ProductDetails = ({
             <div className="mt-6">
               <h3 className="text-white font-myriad font-bold">Select Size</h3>
               <div className="flex gap-2 mt-4 flex-wrap">
-                {sizes.map((option) => (
+                {sortedSizes.map((option) => (
                   <button
                     key={option.size}
                     onClick={() => handleSizeSelect(option.size)}

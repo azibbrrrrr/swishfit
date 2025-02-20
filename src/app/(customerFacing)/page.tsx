@@ -30,7 +30,7 @@ const getNewestProducts = cache(() => {
 
 export default function HomePage() {
   return (
-    <div>
+    <div className="mb-40">
       {/* Hero Section */}
       <div className="bg-[#43286D] w-full">
         <header className=" text-white py-12 px-10 flex flex-col md:flex-row items-center justify-between max-w-screen-2xl mx-auto w-full">
