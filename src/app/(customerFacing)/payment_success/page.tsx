@@ -8,10 +8,10 @@ const SuccessfulPayment = () => {
   const cart = useCart();
 
   useEffect(() => {
-    if (cart.clearCart) {
+    if (cart?.clearCart) {
       cart.clearCart();
     }
-  }, []);
+  }, [cart]);
 
   return (
     <div className="h-screen flex flex-col justify-center items-center gap-5">
