@@ -23,15 +23,20 @@ const addSchema = z.object({
   name: z.string().min(1),
   description: z.string().min(1),
   priceInCents: z.coerce.number().int().min(1),
-  file: fileSchema.refine(file => file.size > 0, "Required"),
   image: imageSchema.refine(file => file.size > 0, "Required"),
 })
 
 export async function addProduct(prevState: unknown, formData: FormData) {
-  const result = addSchema.safeParse(Object.fromEntries(formData.entries()))
-  if (!result.success) return result.error.formErrors.fieldErrors
+  console.log("Received form data:", Object.fromEntries(formData.entries()));
 
-  const data = result.data
+  const result = addSchema.safeParse(Object.fromEntries(formData.entries()));
+  if (!result.success) {
+    console.log("Validation failed:", result.error.formErrors.fieldErrors);
+    return result.error.formErrors.fieldErrors;
+  }
+
+  const data = result.data;
+  console.log("Validated product data:", data);
 
   // Extract variations from formData
   const variations: { size?: string; color?: string; stock: number }[] = [];
@@ -42,44 +47,44 @@ export async function addProduct(prevState: unknown, formData: FormData) {
       const index = Number(match[1]); // Extract index (0, 1, 2...)
       if (!variations[index]) variations[index] = { stock: 0 }; // Ensure object exists
   
-      const field = match[2]; // Extract field name: "size", "color", or "stock"
+      const field = match[2] as "size" | "color" | "stock"; // Explicitly define as valid keys
       if (field === "stock") {
         variations[index].stock = Number(value); // Convert stock to number
-      } else if (field === "size" || field === "color") {
-        variations[index][field] = value as string;
+      } else {
+        variations[index][field] = value as string; // Type assertion
       }
     }
-  } 
+  }
+  
+  console.log("Extracted variations:", variations);
 
-  // Validate variations
-  const validatedVariations = variations.map(v => variationSchema.parse(v))
+    // Validate variations
+    const validatedVariations = variations.map(v => variationSchema.parse(v));
+    console.log("Validated variations:", validatedVariations);
 
-  // Store product file & image
-  await fs.mkdir("products", { recursive: true })
-  const filePath = `products/${crypto.randomUUID()}-${data.file.name}`
-  await fs.writeFile(filePath, Buffer.from(await data.file.arrayBuffer()))
+    // Store product image
+    await fs.mkdir("public/products", { recursive: true });
+    const imagePath = `/products/${crypto.randomUUID()}-${data.image.name}`;
+    await fs.writeFile(`public${imagePath}`, Buffer.from(await data.image.arrayBuffer()));
+    console.log("Saved product image at:", imagePath);
 
-  await fs.mkdir("public/products", { recursive: true })
-  const imagePath = `/products/${crypto.randomUUID()}-${data.image.name}`
-  await fs.writeFile(
-    `public${imagePath}`,
-    Buffer.from(await data.image.arrayBuffer())
-  )
+    // Create product with variations
+    const createdProduct = await createProductWithStock(
+      data.name,
+      data.priceInCents,
+      imagePath,
+      data.description,
+      false, // Initially not available for purchase
+      validatedVariations
+    );
 
-  // Create product with variations
-  await createProductWithStock(
-    data.name,
-    data.priceInCents,
-    imagePath,
-    data.description,
-    false, // Initially not available for purchase
-    validatedVariations
-  )
+    console.log("Product successfully inserted into database:", createdProduct);
 
-  revalidatePath("/")
-  revalidatePath("/products")
-  redirect("/admin/products")
-}
+    revalidatePath("/")
+    revalidatePath("/products")
+  
+    redirect("/admin/products")
+  }
 
 const editSchema = addSchema.extend({
   file: fileSchema.optional(),
