@@ -2,16 +2,18 @@
 
 import useCart from '@/lib/hooks/useCart';
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const SuccessfulPayment = () => {
   const cart = useCart();
+  const [hasCleared, setHasCleared] = useState(false);
 
   useEffect(() => {
-    if (cart?.clearCart) {
+    if (cart?.clearCart && !hasCleared) {
       cart.clearCart();
+      setHasCleared(true); // Prevent re-triggering
     }
-  }, [cart]);
+  }, [cart, hasCleared]);
 
   return (
     <div className="h-screen flex flex-col justify-center items-center gap-5">
