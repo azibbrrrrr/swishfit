@@ -36,8 +36,8 @@ export function ProductCard({
           height={200}
           className="w-full max-w-[1000px]"
         />
-        <p className="font-myriad text-lg mt-2">{name}</p>
-        <p className="font-myriad text-lg font-bold">
+        <p className=" text-md mt-2">{name}</p>
+        <p className=" text-md font-semibold">
           {formatCurrency(priceInCents / 100)}
         </p>
       </div>

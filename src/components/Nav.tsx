@@ -92,7 +92,7 @@ export function NavLink(props: Omit<ComponentProps<typeof Link>, 'className'>) {
     <Link
       {...props}
       className={cn(
-        'block md:uppercase font-myriad px-4 py-2 md:py-6 md:hover:bg-white md:hover:text-[#43286D] focus-visible:bg-secondary focus-visible:text-[#43286D]',
+        'block md:uppercase px-4 py-2 md:py-6 md:hover:bg-white md:hover:text-[#43286D] focus-visible:bg-secondary focus-visible:text-[#43286D]',
         pathname === props.href,
       )}
     />

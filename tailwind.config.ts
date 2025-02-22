@@ -10,10 +10,11 @@ export default {
   theme: {
   	extend: {
 		fontFamily: {
-			'sans': ['MyriadPro', 'sans-serif'],
+			'sans': ['Poppins', 'sans-serif'],
 			'changa': ['ChangaOne', 'sans-serif'],
 			'nhl': ['NHLEVan', 'serif'],
 			'myriad': ['MyriadPro', 'sans-serif'],
+			'poppins': ['Poppins', 'sans-serif'],
 		},
   		colors: {
   			background: 'hsl(var(--background))',

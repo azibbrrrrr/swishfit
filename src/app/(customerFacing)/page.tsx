@@ -46,7 +46,7 @@ export default function HomePage() {
             <h1 className="font-changa text-5xl md:text-6x ">
               UNLEASH THE DUNK. <br /> GEAR UP WITH RENDUNKS.
             </h1>
-            <button className="bg-yellow-400 text-black px-6 py-2 mt-4 font-myriad font-bold text-2xl">
+            <button className="bg-yellow-400 text-black px-6 py-2 mt-4 font-bold text-2xl">
               SHOP NOW
             </button>
           </div>
@@ -75,10 +75,10 @@ function ProductGridSection({
   return (
     <div className="space-y-4 px-8 py-6 max-w-[1350px] mx-auto">
       <div className="flex items-center gap-4">
-        <h2 className="uppercase font-changa text-2xl">{title}</h2>
+        <h2 className="uppercase font-bold text-2xl">{title}</h2>
         <Button variant="outline" asChild>
           <Link href="/products" className="space-x-2 flex items-center">
-            <span className="font-changa text-lg">View All</span>
+            <span className="text-lg">View All</span>
             <ArrowRight className="size-4" />
           </Link>
         </Button>
