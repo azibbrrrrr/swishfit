@@ -54,15 +54,6 @@ const ProductDetails = ({
     setColors(filteredColors);
   };
 
-  // const handleColorSelect = (color: string) => {
-  //   setSelectedColor(color);
-  //   const filteredSizes =
-  //     product.variations
-  //       ?.filter((v) => v.size === color && v.size)
-  //       .map((v) => ({ size: v.color!, stock: v.stock })) ?? [];
-  //   setSizes(filteredSizes);
-  // };
-
   const handleColorSelect = (color: string) => {
     setSelectedColor(color);
     const filteredSizes =
@@ -81,7 +72,7 @@ const ProductDetails = ({
   );
 
   return (
-    <div className="bg-[#2E1D4F] px-6 md:px-20 py-6 w-full min-h-screen">
+    <div className="bg-[#2E1D4F] px-6 md:px-20 py-20 w-full min-h-screen">
       <div className="max-w-screen-xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
         {/* Image Section */}
         <div className="w-full flex justify-center items-start">
@@ -108,7 +99,9 @@ const ProductDetails = ({
           {/* Color Selection */}
           {colors.length > 0 && (
             <div className="mt-6">
-              <h3 className="text-white font-myriad font-bold">Select Color</h3>
+              <h3 className="text-yellow-400 font-myriad text-lg font-bold uppercase">
+                Select Color
+              </h3>
               <div className="flex gap-2 mt-4 flex-wrap">
                 {colors.map((option) => (
                   <button
@@ -130,7 +123,9 @@ const ProductDetails = ({
           {/* Size Selection */}
           {sizes.length > 0 && (
             <div className="mt-6">
-              <h3 className="text-white font-myriad font-bold">Select Size</h3>
+              <h3 className="text-yellow-400 font-myriad font-bold text-lg uppercase">
+                Select Size
+              </h3>
               <div className="flex gap-2 mt-4 flex-wrap">
                 {sortedSizes.map((option) => (
                   <button
@@ -151,7 +146,7 @@ const ProductDetails = ({
 
           {(selectedSize || sizes.length === 0) &&
             (selectedColor || colors.length === 0) && (
-              <h3 className="text-xl font-bold text-white">
+              <h3 className="text-md font-semibold text-white pt-2">
                 {getStockForSelection()} in stock
               </h3>
             )}

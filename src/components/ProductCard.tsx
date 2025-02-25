@@ -1,8 +1,9 @@
 'use client'; // This marks the component as a Client Component
 
 import { formatCurrency } from '@/lib/formatters';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { useState } from 'react';
 
 type ProductCardProps = {
   id: string;
@@ -18,16 +19,26 @@ export function ProductCard({
   priceInCents,
   imagePath,
 }: ProductCardProps) {
-  const handleScrollToTop = () => {
-    // Scroll to the top of the page when the link is clicked
-    window.scrollTo(0, 0);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const handleClick = () => {
+    setLoading(true); // Show loading animation
+    router.push(`/products/${id}`); // Navigate to the product page
   };
 
   return (
-    <Link href={`/products/${id}`} scroll={false}>
+    <>
+      {loading && (
+        // Full-Screen Loading Overlay
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="w-12 h-12 border-[6px] border-gray-300 border-t-yellow-600 rounded-full animate-spin"></div>
+        </div>
+      )}
+
       <div
+        onClick={handleClick}
         className="flex flex-col items-start w-full cursor-pointer"
-        onClick={handleScrollToTop} // Add this to trigger scrolling to top on link click
       >
         <Image
           src={imagePath}
@@ -36,12 +47,12 @@ export function ProductCard({
           height={200}
           className="w-full max-w-[1000px]"
         />
-        <p className=" text-md mt-2">{name}</p>
-        <p className=" text-md font-semibold">
+        <p className="text-md mt-2">{name}</p>
+        <p className="text-md font-semibold">
           {formatCurrency(priceInCents / 100)}
         </p>
       </div>
-    </Link>
+    </>
   );
 }
 
