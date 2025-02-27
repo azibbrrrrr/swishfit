@@ -46,9 +46,11 @@ export default function HomePage() {
             <h1 className="font-changa text-5xl md:text-6x ">
               UNLEASH THE DUNK. <br /> GEAR UP WITH RENDUNKS.
             </h1>
-            <button className="bg-yellow-400 text-black px-6 py-2 mt-4 font-bold text-2xl">
-              SHOP NOW
-            </button>
+            <Link href="/products">
+              <button className="bg-yellow-400 text-black px-6 py-2 mt-4 font-bold text-2xl">
+                SHOP NOW
+              </button>
+            </Link>
           </div>
         </header>
       </div>
