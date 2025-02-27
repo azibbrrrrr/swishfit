@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 
 
-const FASTAPI_URL = process.env.AWS_PUBLIC_SERVER_URL as string;
+const FASTAPI_URL = "http://3.106.227.115:8000/chat/"
 
 export async function POST(req: NextRequest) {
     try {
