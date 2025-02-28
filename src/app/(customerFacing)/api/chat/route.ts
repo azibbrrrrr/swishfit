@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
+import { env } from "process";
 
 
-const FASTAPI_URL = "http://3.106.227.115:8000/chat/"
+const FASTAPI_URL = env.FASTAPI_URL || "http://localhost:8000/chat";
 
 export async function POST(req: NextRequest) {
     try {

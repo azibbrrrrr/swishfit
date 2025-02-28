@@ -114,7 +114,7 @@ export default function Chatbot() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
-          className="fixed bottom-16 right-6 bg-white w-80 rounded-lg shadow-lg border border-gray-300"
+          className="fixed bottom-16 right-6 bg-white w-[450px] rounded-lg shadow-lg border border-gray-300"
         >
           <div className="bg-purple-800 text-white p-3 text-sm flex justify-between items-center">
             <span className="font-semibold">
